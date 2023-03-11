@@ -108,8 +108,6 @@ public:
         }
     }
 
-    // Terminals e.g. are (, ), id, +, *, etc. They might be within one of the value of every key's array in the map.
-    // Function to identify terminals mentioned above
     void findTerminals()
     {
         for (auto it = grammar.begin(); it != grammar.end(); it++)
@@ -151,9 +149,6 @@ public:
             cout << *it << " ";
         cout << endl;
     }
-
-    // Terminals e.g. are (, ), id, +, *, etc.
-    // Function to identify terminals mentioned above
 };
 
 int main()
