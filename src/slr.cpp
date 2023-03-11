@@ -4,6 +4,7 @@
 #include <vector>
 #include <map>
 #include <set>
+
 using namespace std;
 
 class Grammar
@@ -15,12 +16,14 @@ public:
     set<string> terminals;
     set<string> nonTerminals;
 
+    Grammar() {}
+
     Grammar(string filename)
     {
         ifstream fin(filename);
         if (!fin)
         {
-            cout << "Error opening file" << endl;
+            cout << "Error opening file!" << endl;
             return;
         }
         else
@@ -29,9 +32,7 @@ public:
             while (getline(fin, line))
             {
                 if (startSymbol == "")
-                {
                     startSymbol = line.substr(0, line.find("->"));
-                }
                 string key = line.substr(0, line.find("->"));
                 string value = line.substr(line.find("->") + 2, line.length());
                 grammar[key].push_back(value);
@@ -43,6 +44,11 @@ public:
     {
         return startSymbol;
     }
+
+    string getAugmentedStartSymbol()
+    {
+        return startSymbol + "\'";
+    }    
 
     map<string, vector<string>> getGrammarMap()
     {
@@ -151,71 +157,92 @@ public:
     }
 };
 
+class LR0Item {
+public:
+    string left;
+    string right;
+    int dot;
+
+    bool operator==(const LR0Item& other) const {
+        return left == other.left && right == other.right && dot == other.dot;
+    }
+
+    bool operator<(const LR0Item& other) const {
+        return right < other.right;
+    }
+    
+    LR0Item() {}
+
+    LR0Item(string left, string right, int dot) {
+        this->left = left;
+        this->right = right;
+        this->dot = dot;
+    }
+};
+
+set<LR0Item> closure(set<LR0Item> items, Grammar &G) {
+    map<string, vector<string>> grammar = G.getGrammarMap();
+    set<LR0Item> closure_items = items;
+
+    while (true) {
+        bool added = false;
+
+        for (const auto& item : closure_items) {
+            if (item.dot >= item.right.size()) {
+                continue;
+            }
+
+            char next_ch = item.right[item.dot];
+            string next;
+            next += next_ch;
+
+            for(const auto& production : grammar[next]) {
+                LR0Item new_item = LR0Item(next, production, 0);
+                bool flag = true;
+
+                for(const auto& item : closure_items) {
+                    if (item == new_item) {
+                        flag = false;
+                        break;
+                    }
+                }
+
+                if(flag) {
+                    added = true;
+                    closure_items.insert(new_item);
+                }
+            }
+        }
+        if (!added)
+            break;
+    }
+    return closure_items;
+}
+
 int main()
 {
-    // ifstream fin("input.txt");
+    Grammar G("input.txt");
+    map<string, vector<string>> grammar = G.getAugmentedGrammarMap();
 
-    // map<string, vector<string>> grammar;
-    // string startSymbol;
+    LR0Item item = LR0Item(G.getAugmentedStartSymbol(), grammar[G.getAugmentedStartSymbol()][0], 0);
+    set<LR0Item> items;
+    items.insert(item);
 
-    // if (!fin)
-    // {
-    //     cout << "Error opening file" << endl;
-    //     return 1;
-    // }
-    // else
-    // {
-    //     string line;
-    //     while (getline(fin, line))
-    //     {
-    //         if (startSymbol == "")
-    //         {
-    //             startSymbol = line.substr(0, line.find("->"));
-    //             grammar[startSymbol + "\b'"].push_back(startSymbol);
-    //         }
-    //         string key = line.substr(0, line.find("->"));
-    //         string value = line.substr(line.find("->") + 2, line.length());
-    //         grammar[key].push_back(value);
-    //     }
-    // }
+    set<LR0Item> closure_items = closure(items, G);
 
-    // for (auto it = grammar.begin(); it != grammar.end(); it++)
-    // {
-    //     cout << it->first << " -> ";
-    //     for (auto it2 = it->second.begin(); it2 != it->second.end(); it2++)
-    //     {
-    //         if (it2 != it->second.end() - 1)
-    //             cout << *it2 << " | ";
-    //         else
-    //             cout << *it2;
-    //     }
-    //     cout << endl;
-    // }
-
-    Grammar grammar("input.txt");
-
-    // Testing all the functions
-    cout << "printGrammar()" << endl;
-    grammar.printGrammar();
-    cout << endl;
-
-    cout << "printAugmentedGrammar()" << endl;
-    grammar.printAugmentedGrammar();
-    cout << endl;
-
-    cout << "printMapInJSONFormat()" << endl;
-    grammar.printMapInJSONFormat();
-    cout << endl;
-
-    cout << "printTerminals()" << endl;
-    grammar.findTerminals();
-    grammar.printTerminals();
-    cout << endl;
-
-    cout << "printNonTerminals()" << endl;
-    grammar.findNonTerminals();
-    grammar.printNonTerminals();
-    cout << endl;
+    for (const auto& item : closure_items) {
+        cout << item.left << " -> ";
+        for (int i = 0; i < item.right.size(); i++) {
+            if (i == item.dot) {
+                cout << ".";
+            }
+            cout << item.right[i];
+        }
+        if (item.dot == item.right.size()) {
+            cout << ".";
+        }
+        cout << endl;
+    }
 
     return 0;
 }
