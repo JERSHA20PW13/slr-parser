@@ -219,6 +219,28 @@ set<LR0Item> closure(set<LR0Item> items, Grammar &G) {
     return closure_items;
 }
 
+set<LR0Item> goto_set(set<LR0Item> items, string symbol, Grammar &G) {
+    set<LR0Item> goto_items;
+    map<string, vector<string>> grammar = G.getGrammarMap();
+
+    for (const auto& item : items) {
+        if (item.dot >= item.right.size()) {
+            continue;
+        }
+
+        char next_ch = item.right[item.dot];
+        string next;
+        next += next_ch;
+
+        if (next == symbol) {
+            LR0Item new_item = LR0Item(item.left, item.right, item.dot + 1);
+            goto_items.insert(new_item);
+        }
+    }
+
+    return closure(goto_items, G);
+}
+
 int main()
 {
     Grammar G("input.txt");
@@ -230,6 +252,7 @@ int main()
 
     set<LR0Item> closure_items = closure(items, G);
 
+    cout << "\nCLOSURE" << endl;
     for (const auto& item : closure_items) {
         cout << item.left << " -> ";
         for (int i = 0; i < item.right.size(); i++) {
@@ -244,5 +267,50 @@ int main()
         cout << endl;
     }
 
+    int state = 0;
+    vector<set<LR0Item>> states;
+    states.push_back(closure_items);
+
+    for(const auto& s : states) {
+        for(const auto& item : s) {
+            if(item.dot >= item.right.size()) {
+                if(item.left == G.getAugmentedStartSymbol() && item.right == grammar[G.getAugmentedStartSymbol()][0] && item.dot == 1) {
+                    cout << "ACCEPT" << endl;
+                }
+                else {
+                    cout << "REDUCE" << endl;
+                }
+            }
+            else {
+                char next_ch = item.right[item.dot];
+                string next;
+                next += next_ch;
+
+                if(grammar.find(next) != grammar.end()) {
+                    set<LR0Item> goto_items = goto_set(s, next, G);
+
+                    cout << "\n\nGOTO" << endl;
+                    for(const auto& it: goto_items) {
+                        cout << it.left << " -> ";
+                        for (int i = 0; i < it.right.size(); i++) {
+                            if (i == it.dot) {
+                                cout << ".";
+                            }
+                            cout << it.right[i];
+                        }
+                        if (it.dot == it.right.size()) {
+                            cout << ".";
+                        }
+                        cout << endl;
+                    }
+
+                    // to be removed
+                    exit(0);
+                }
+            }
+        }
+    }
+
+    cout << "STATES: " << state << endl;
     return 0;
 }
