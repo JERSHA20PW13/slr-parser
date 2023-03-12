@@ -170,7 +170,7 @@ public:
     bool operator<(const LR0Item& other) const {
         return right < other.right;
     }
-    
+
     LR0Item() {}
 
     LR0Item(string left, string right, int dot) {
@@ -241,19 +241,9 @@ set<LR0Item> goto_set(set<LR0Item> items, string symbol, Grammar &G) {
     return closure(goto_items, G);
 }
 
-int main()
+void display(set<LR0Item> &items)
 {
-    Grammar G("input.txt");
-    map<string, vector<string>> grammar = G.getAugmentedGrammarMap();
-
-    LR0Item item = LR0Item(G.getAugmentedStartSymbol(), grammar[G.getAugmentedStartSymbol()][0], 0);
-    set<LR0Item> items;
-    items.insert(item);
-
-    set<LR0Item> closure_items = closure(items, G);
-
-    cout << "\nCLOSURE" << endl;
-    for (const auto& item : closure_items) {
+    for (const auto& item : items) {
         cout << item.left << " -> ";
         for (int i = 0; i < item.right.size(); i++) {
             if (i == item.dot) {
@@ -266,6 +256,21 @@ int main()
         }
         cout << endl;
     }
+}
+
+int main()
+{
+    Grammar G("input.txt");
+    map<string, vector<string>> grammar = G.getAugmentedGrammarMap();
+
+    LR0Item item = LR0Item(G.getAugmentedStartSymbol(), grammar[G.getAugmentedStartSymbol()][0], 0);
+    set<LR0Item> items;
+    items.insert(item);
+
+    set<LR0Item> closure_items = closure(items, G);
+
+    cout << "\nCLOSURE" << endl;
+    display(closure_items);
 
     int state = 0;
     vector<set<LR0Item>> states;
@@ -288,29 +293,20 @@ int main()
 
                 if(grammar.find(next) != grammar.end()) {
                     set<LR0Item> goto_items = goto_set(s, next, G);
-
-                    cout << "\n\nGOTO" << endl;
-                    for(const auto& it: goto_items) {
-                        cout << it.left << " -> ";
-                        for (int i = 0; i < it.right.size(); i++) {
-                            if (i == it.dot) {
-                                cout << ".";
-                            }
-                            cout << it.right[i];
-                        }
-                        if (it.dot == it.right.size()) {
-                            cout << ".";
-                        }
-                        cout << endl;
-                    }
-
-                    // to be removed
-                    exit(0);
+                    cout << "GOTO" << endl;
+                    display(goto_items);
+                    state++;
                 }
+                // else {
+                //     set<LR0Item> next_items = goto_set(s, next, G);
+                //     cout << "GOTO" << endl;
+                //     display(next_items);
+                //     state++;
+                // }
+                cout << "STATE " << state << endl;
             }
         }
     }
 
-    cout << "STATES: " << state << endl;
     return 0;
 }
