@@ -14,7 +14,6 @@ int main()
     // Making the first LR0 item with the augmented start symbol.
     LR0Item item = LR0Item(G.getAugmentedStartSymbol(), grammar[G.getAugmentedStartSymbol()][0], 0);
 
-    // ??
     set<LR0Item> items;
     items.insert(item);
 
@@ -27,9 +26,9 @@ int main()
 
     // Construction of the set of LR0 items.
     int state_count = 0;
-    vector<set<LR0Item>> states;
+    set<set<LR0Item>> states;
     // Pushing in the closure of the first LR0 item and starting the construction.
-    states.push_back(closure_items);
+    states.insert(closure_items);
 
     // For every state in the set of states
     for (const auto &s : states)
@@ -37,25 +36,10 @@ int main()
         // for every item in the state
         for (const auto &item : s)
         {
-            // if the dot is at the end of the right hand side of the item
-            if (item.dot >= item.right.size())
-            {
-                // if the item is the augmented start symbol and the dot is at the end of the right hand side of the item
-                if (item.left == G.getAugmentedStartSymbol() && item.right == grammar[G.getAugmentedStartSymbol()][0] && item.dot == 1)
-                {
-                    cout << "ACCEPT" << endl;
-                }
-                else
-                {
-                    cout << "REDUCE" << endl;
-                }
-            }
-            // if the dot is not at the end of the right hand side of the item
-            else
-            {
-                // get the next character after the dot
-                string next = item.right.substr(item.dot, 1);
+            // get the next character after the dot
+            string next = item.right.substr(item.dot, 1);
 
+            if(item.dot < item.right.size()) {
                 if (grammar.find(next) != grammar.end())
                 {
                     // getting the goto_set of the state from (state, the next character and the grammar)
@@ -64,10 +48,8 @@ int main()
                     // Insert into states if not already present
                     if (!gotoStateAlreadyExists(states, goto_items))
                     {
-                        states.push_back(goto_items);
+                        states.insert(goto_items);
                         state_count++;
-
-                        cout << "State count " << state_count << endl;
                     }
                 }
                 // if the next character is a terminal
@@ -78,14 +60,22 @@ int main()
                     // Insert into states if not already present
                     if (!gotoStateAlreadyExists(states, next_items))
                     {
-                        states.push_back(next_items);
+                        states.insert(next_items);
                         state_count++;
-
-                        cout << "State count " << state_count << endl;
                     }
                 }
             }
         }
+    }
+
+    // Logging the states.
+    cout << "\nSTATES" << endl;
+    int cou = 0;
+    for (const auto &state : states)
+    {
+        cout << "State " << cou++ << endl;
+        displayLR0Items(state);
+        cout << endl;
     }
 
     return 0;

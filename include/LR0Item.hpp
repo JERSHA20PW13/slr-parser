@@ -18,7 +18,10 @@ public:
 
     bool operator<(const LR0Item &other) const
     {
-        return right < other.right;
+        if(right != other.right)
+            return right < other.right;
+        else
+            return dot < other.dot;
     }
 
     LR0Item() {}
@@ -133,10 +136,12 @@ set<LR0Item> goto_set(set<LR0Item> items, string symbol, Grammar &G)
         }
     }
     // Finally return the closure of the new goto items.
-    return closure(goto_items, G);
+    set<LR0Item> closure_items = closure(goto_items, G);
+
+    return closure_items;
 }
 
-bool gotoStateAlreadyExists(vector<set<LR0Item>> states, set<LR0Item> state)
+bool gotoStateAlreadyExists(set<set<LR0Item>> states, set<LR0Item> state)
 {
     bool gotoStateExists = false;
     // for every state in the states
