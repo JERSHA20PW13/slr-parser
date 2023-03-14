@@ -26,7 +26,7 @@ int main()
     // displayLR0Items(closure_items);
 
     // Construction of the set of LR0 items.
-    int state = 0;
+    int state_count = 0;
     vector<set<LR0Item>> states;
     // Pushing in the closure of the first LR0 item and starting the construction.
     states.push_back(closure_items);
@@ -56,27 +56,34 @@ int main()
                 // get the next character after the dot
                 string next = item.right.substr(item.dot, 1);
 
-                // if the next character is not ???
                 if (grammar.find(next) != grammar.end())
                 {
                     // getting the goto_set of the state from (state, the next character and the grammar)
                     set<LR0Item> goto_items = goto_set(s, next, G);
 
-                    // Logging the goto_set
-                    cout << "GOTO" << endl;
-                    displayLR0Items(goto_items);
+                    // Insert into states if not already present
+                    if (!gotoStateAlreadyExists(states, goto_items))
+                    {
+                        states.push_back(goto_items);
+                        state_count++;
 
-                    // One more state is added to the set of states.
-                    state++;
+                        cout << "State count " << state_count << endl;
+                    }
                 }
-                // else
-                // {
-                //     set<LR0Item> next_items = goto_set(s, next, G);
-                //     cout << "GOTO" << endl;
-                //     displayLR0Items(next_items);
-                //     state++;
-                // }
-                cout << "STATE " << state << endl;
+                // if the next character is a terminal
+                else
+                {
+                    set<LR0Item> next_items = goto_set(s, next, G);
+
+                    // Insert into states if not already present
+                    if (!gotoStateAlreadyExists(states, next_items))
+                    {
+                        states.push_back(next_items);
+                        state_count++;
+
+                        cout << "State count " << state_count << endl;
+                    }
+                }
             }
         }
     }

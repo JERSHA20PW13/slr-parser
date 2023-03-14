@@ -31,6 +31,14 @@ public:
     }
 };
 
+void displayLR0Items(set<LR0Item> items)
+{
+    for (const auto &item : items)
+    {
+        cout << item.left << " -> " << item.right.substr(0, item.dot) << "." << item.right.substr(item.dot) << endl;
+    }
+}
+
 set<LR0Item> closure(set<LR0Item> items, Grammar &G)
 {
     // Getting the map of the augmented grammar.
@@ -128,12 +136,21 @@ set<LR0Item> goto_set(set<LR0Item> items, string symbol, Grammar &G)
     return closure(goto_items, G);
 }
 
-void displayLR0Items(set<LR0Item> items)
+bool gotoStateAlreadyExists(vector<set<LR0Item>> states, set<LR0Item> state)
 {
-    for (const auto &item : items)
+    bool gotoStateExists = false;
+    // for every state in the states
+    for (const auto &setOfLR0Items : states)
     {
-        cout << item.left << " -> " << item.right.substr(0, item.dot) << "." << item.right.substr(item.dot) << endl;
+        // flag to check if the given state is already present in the states.
+        if (setOfLR0Items == state)
+        {
+            gotoStateExists = true;
+            break;
+        }
     }
+
+    return gotoStateExists;
 }
 
 #endif
