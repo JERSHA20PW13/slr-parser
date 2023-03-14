@@ -25,7 +25,6 @@ public:
     string getAugmentedStartSymbol();
     map<string, vector<string>> getGrammarMap();
     void printMapInJSONFormat();
-    // Getting augmented grammar
     map<string, vector<string>> getAugmentedGrammarMap();
     void printGrammar();
     void printAugmentedGrammar();
@@ -136,6 +135,7 @@ void Grammar::printAugmentedGrammar()
     }
 }
 
+// Doesn't work
 void Grammar::findTerminals()
 {
     for (auto it = grammar.begin(); it != grammar.end(); it++)
