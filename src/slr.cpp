@@ -139,10 +139,11 @@ void displaySLRTable(map<pair<int, string>, string> slr_table)
     // int as rows and string as columns
     set<int> row_values;
     set<string> col_values;
-    for (auto const &[key, val] : slr_table)
+
+    for (auto const &key : slr_table)
     {
-        row_values.insert(key.first);
-        col_values.insert(key.second);
+        row_values.insert(key.first.first);
+        col_values.insert(key.first.second);
     }
 
     // Print table header
