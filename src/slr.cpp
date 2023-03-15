@@ -1,7 +1,10 @@
 #include "../include/Includes.hpp"
-
+#include <iomanip>
 // macros
 #define INPUT_FILE "input.txt"
+
+// functions
+void displaySLRTable(map<pair<int, string>, string>);
 
 int main()
 {
@@ -23,7 +26,6 @@ int main()
     // Logging the closure.
     // cout << "\nCLOSURE" << endl;
     // displayLR0Items(closure_items);
-
 
     // cout << "FIRST" << endl;
     // map<string, set<string>> first = G.getFirst();
@@ -49,7 +51,6 @@ int main()
     //     cout << endl;
     // }
 
-
     // Construction of the transition table.
     map<pair<int, string>, string> slr_table;
 
@@ -62,17 +63,18 @@ int main()
     int count = 0;
 
     // For every state in the set of states
-    while(count <= state_count)
+    while (count <= state_count)
     {
         set<LR0Item> s = states[count];
 
         // for every item in the state
         for (const auto &item : s)
         {
-            if(item.dot < item.right.size()) {
+            if (item.dot < item.right.size())
+            {
                 // get the next character after the dot
                 string next = item.right.substr(item.dot, 1);
-                
+
                 // getting the goto_set of the state from (state, the next character and the grammar)
                 set<LR0Item> goto_items = goto_set(s, next, G);
 
@@ -81,23 +83,39 @@ int main()
                 {
                     states[++state_count] = goto_items;
 
-                    if(next >= "A" && next <= "Z") {
+                    if (next >= "A" && next <= "Z")
+                    {
                         slr_table[make_pair(count, next)] = to_string(state_count);
                     }
-                    else {
-                        slr_table[make_pair(count, next)] = "shift " + to_string(state_count);
+                    else
+                    {
+                        slr_table[make_pair(count, next)] = "S:" + to_string(state_count);
+                    }
+                }
+                else
+                {
+                    if (next >= "A" && next <= "Z")
+                    {
+                        slr_table[make_pair(count, next)] = to_string(getStateNumber(states, goto_items));
+                    }
+                    else
+                    {
+                        slr_table[make_pair(count, next)] = "S:" + to_string(getStateNumber(states, goto_items));
                     }
                 }
             }
-            else {
-                if(item.left == G.getAugmentedStartSymbol()) {
-                    slr_table[make_pair(count, "$")] = "accept";
+            else
+            {
+                if (item.left == G.getAugmentedStartSymbol())
+                {
+                    slr_table[make_pair(count, "$")] = "A";
                 }
-                else {
+                else
+                {
                     set<string> follow = G.getFollow()[item.left];
                     for (const auto &f : follow)
                     {
-                        slr_table[make_pair(count, f)] = "reduce " + item.left + " -> " + item.right;
+                        slr_table[make_pair(count, f)] = "R:" + item.left + "->" + item.right;
                     }
                 }
             }
@@ -105,17 +123,53 @@ int main()
         count++;
     }
 
+    cout << slr_table.size() << endl;
+
     cout << "state_count: " << state_count << endl;
 
-    // Logging the states.
-    // cout << "\nSTATES" << endl;
-    // count = 0;
-    // for (int i=0; i<=state_count; i++)
-    // {
-    //     cout << "State " << count++ << endl;
-    //     displayLR0Items(states[i]);
-    //     cout << endl;
-    // }
+    // Logging the SLR table.
+    displaySLRTable(slr_table);
 
     return 0;
+}
+
+void displaySLRTable(map<pair<int, string>, string> slr_table)
+{
+    cout << "SLR TABLE" << endl;
+    // int as rows and string as columns
+    set<int> row_values;
+    set<string> col_values;
+    for (auto const &[key, val] : slr_table)
+    {
+        row_values.insert(key.first);
+        col_values.insert(key.second);
+    }
+
+    // Print table header
+    cout << left << setw(15) << " ";
+    for (auto const &col : col_values)
+    {
+        cout << left << setw(15) << col;
+    }
+    cout << endl;
+    cout << "---------------------------------------------------------------------------------------------------------------------------------------------" << endl;
+
+    // Print table rows
+    for (auto const &row : row_values)
+    {
+        cout << left << setw(15) << row;
+        for (auto const &col : col_values)
+        {
+            auto it = slr_table.find({row, col});
+            if (it != slr_table.end())
+            {
+                cout << left << setw(15) << it->second;
+            }
+            else
+            {
+                cout << left << setw(15) << " ";
+            }
+        }
+        cout << endl;
+    }
 }
