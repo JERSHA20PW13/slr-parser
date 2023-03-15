@@ -130,6 +130,10 @@ int main()
     // Logging the SLR table.
     displaySLRTable(slr_table);
 
+    Parser p(slr_table);
+    p.getInput();
+    p.parse();
+
     return 0;
 }
 
