@@ -50,7 +50,9 @@ int main()
     // }
 
 
-/*
+    // Construction of the transition table.
+    map<pair<int, string>, string> slr_table;
+
     // Construction of the set of LR0 items.
     int state_count = 0;
     map<int, set<LR0Item>> states;
@@ -79,8 +81,24 @@ int main()
                 {
                     states[++state_count] = goto_items;
 
-                    // cout << "next: " << next << "count: " << cou << endl;
-                    // displayLR0Items(goto_items);
+                    if(next >= "A" && next <= "Z") {
+                        slr_table[make_pair(count, next)] = to_string(state_count);
+                    }
+                    else {
+                        slr_table[make_pair(count, next)] = "shift " + to_string(state_count);
+                    }
+                }
+            }
+            else {
+                if(item.left == G.getAugmentedStartSymbol()) {
+                    slr_table[make_pair(count, "$")] = "accept";
+                }
+                else {
+                    set<string> follow = G.getFollow()[item.left];
+                    for (const auto &f : follow)
+                    {
+                        slr_table[make_pair(count, f)] = "reduce " + item.left + " -> " + item.right;
+                    }
                 }
             }
         }
@@ -90,15 +108,14 @@ int main()
     cout << "state_count: " << state_count << endl;
 
     // Logging the states.
-    cout << "\nSTATES" << endl;
-    count = 0;
-    for (int i=0; i<=state_count; i++)
-    {
-        cout << "State " << count++ << endl;
-        displayLR0Items(states[i]);
-        cout << endl;
-    }
-*/
+    // cout << "\nSTATES" << endl;
+    // count = 0;
+    // for (int i=0; i<=state_count; i++)
+    // {
+    //     cout << "State " << count++ << endl;
+    //     displayLR0Items(states[i]);
+    //     cout << endl;
+    // }
 
     return 0;
 }

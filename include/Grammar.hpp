@@ -34,8 +34,8 @@ public:
     void printAugmentedGrammar();
     void findTerminals();
     void findNonTerminals();
-    void printTerminals();
-    void printNonTerminals();
+    set<string> getTerminals();
+    set<string> getNonTerminals();
     void constructFirst();
     void constructFollow();
     // ~Grammar();
@@ -172,18 +172,14 @@ void Grammar::findNonTerminals()
     }
 }
 
-void Grammar::printTerminals()
+set<string> Grammar::getTerminals()
 {
-    for (auto it = terminals.begin(); it != terminals.end(); it++)
-        cout << *it << " ";
-    cout << endl;
+    return terminals;
 }
 
-void Grammar::printNonTerminals()
+set<string> Grammar::getNonTerminals()
 {
-    for (auto it = nonTerminals.begin(); it != nonTerminals.end(); it++)
-        cout << *it << " ";
-    cout << endl;
+    return nonTerminals;
 }
 
 void Grammar::constructFirst()
