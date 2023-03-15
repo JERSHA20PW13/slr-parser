@@ -24,59 +24,81 @@ int main()
     // cout << "\nCLOSURE" << endl;
     // displayLR0Items(closure_items);
 
+
+    // cout << "FIRST" << endl;
+    // map<string, set<string>> first = G.getFirst();
+    // for (const auto &f : first)
+    // {
+    //     cout << f.first << " : ";
+    //     for (const auto &s : f.second)
+    //     {
+    //         cout << s << " ";
+    //     }
+    //     cout << endl;
+    // }
+
+    // cout << "FOLLOW" << endl;
+    // map<string, set<string>> follow = G.getFollow();
+    // for (const auto &f : follow)
+    // {
+    //     cout << f.first << " : ";
+    //     for (const auto &s : f.second)
+    //     {
+    //         cout << s << " ";
+    //     }
+    //     cout << endl;
+    // }
+
+
+/*
     // Construction of the set of LR0 items.
     int state_count = 0;
-    set<set<LR0Item>> states;
+    map<int, set<LR0Item>> states;
     // Pushing in the closure of the first LR0 item and starting the construction.
-    states.insert(closure_items);
+    states[0] = closure_items;
+
+    int count = 0;
 
     // For every state in the set of states
-    for (const auto &s : states)
+    while(count <= state_count)
     {
+        set<LR0Item> s = states[count];
+
         // for every item in the state
         for (const auto &item : s)
         {
-            // get the next character after the dot
-            string next = item.right.substr(item.dot, 1);
-
             if(item.dot < item.right.size()) {
-                if (grammar.find(next) != grammar.end())
-                {
-                    // getting the goto_set of the state from (state, the next character and the grammar)
-                    set<LR0Item> goto_items = goto_set(s, next, G);
+                // get the next character after the dot
+                string next = item.right.substr(item.dot, 1);
+                
+                // getting the goto_set of the state from (state, the next character and the grammar)
+                set<LR0Item> goto_items = goto_set(s, next, G);
 
-                    // Insert into states if not already present
-                    if (!gotoStateAlreadyExists(states, goto_items))
-                    {
-                        states.insert(goto_items);
-                        state_count++;
-                    }
-                }
-                // if the next character is a terminal
-                else
+                // Insert into states if not already present
+                if (!gotoStateAlreadyExists(states, goto_items))
                 {
-                    set<LR0Item> next_items = goto_set(s, next, G);
+                    states[++state_count] = goto_items;
 
-                    // Insert into states if not already present
-                    if (!gotoStateAlreadyExists(states, next_items))
-                    {
-                        states.insert(next_items);
-                        state_count++;
-                    }
+                    // cout << "next: " << next << "count: " << cou << endl;
+                    // displayLR0Items(goto_items);
                 }
             }
         }
+        count++;
     }
+
+    cout << "state_count: " << state_count << endl;
 
     // Logging the states.
     cout << "\nSTATES" << endl;
-    int cou = 0;
-    for (const auto &state : states)
+    count = 0;
+    for (int i=0; i<=state_count; i++)
     {
-        cout << "State " << cou++ << endl;
-        displayLR0Items(state);
+        cout << "State " << count++ << endl;
+        displayLR0Items(states[i]);
         cout << endl;
     }
+*/
 
     return 0;
 }

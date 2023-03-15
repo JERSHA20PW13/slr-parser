@@ -17,6 +17,8 @@ private:
     map<string, vector<string>> grammar;
     set<string> terminals;
     set<string> nonTerminals;
+    map<string, set<string>> first;
+    map<string, set<string>> follow;
 
 public:
     Grammar();
@@ -26,12 +28,16 @@ public:
     map<string, vector<string>> getGrammarMap();
     void printMapInJSONFormat();
     map<string, vector<string>> getAugmentedGrammarMap();
+    map<string, set<string>> getFirst();
+    map<string, set<string>> getFollow();
     void printGrammar();
     void printAugmentedGrammar();
     void findTerminals();
     void findNonTerminals();
     void printTerminals();
     void printNonTerminals();
+    void constructFirst();
+    void constructFollow();
     // ~Grammar();
 };
 
@@ -58,6 +64,8 @@ Grammar::Grammar(string filename)
             string value = line.substr(line.find("->") + 2, line.length());
             grammar[key].push_back(value);
         }
+        constructFirst();
+        constructFollow();
     }
 }
 
@@ -176,6 +184,105 @@ void Grammar::printNonTerminals()
     for (auto it = nonTerminals.begin(); it != nonTerminals.end(); it++)
         cout << *it << " ";
     cout << endl;
+}
+
+void Grammar::constructFirst()
+{
+    for (auto it = grammar.begin(); it != grammar.end(); it++)
+    {
+        for (auto it2 = it->second.begin(); it2 != it->second.end(); it2++)
+        {
+            string value = *it2;
+            if (!(value[0] >= 'A' && value[0] <= 'Z'))
+            {
+                string terminal = "";
+                terminal += value[0];
+                first[it->first].insert(terminal);
+            }
+        }
+    }
+
+    int counter = grammar.size();
+    while(counter--) {
+        for (auto it = grammar.begin(); it != grammar.end(); it++)
+        {
+            for (auto it2 = it->second.begin(); it2 != it->second.end(); it2++)
+            {
+                string value = *it2;
+                if (value[0] >= 'A' && value[0] <= 'Z')
+                {
+                    string nonTerminal = "";
+                    nonTerminal += value[0];
+
+                    for (auto it3 = first[nonTerminal].begin(); it3 != first[nonTerminal].end(); it3++)
+                    {
+                        first[it->first].insert(*it3);
+                    }
+                }
+            }
+        }
+    }
+}
+
+map<string, set<string>> Grammar::getFirst()
+{
+    return first;
+}
+
+void Grammar::constructFollow()
+{
+    follow[startSymbol].insert("$");
+
+    int counter = grammar.size();
+    while(counter--) {
+        for (auto it = grammar.begin(); it != grammar.end(); it++)
+        {
+            for (auto it2 = it->second.begin(); it2 != it->second.end(); it2++)
+            {
+                string value = *it2;
+                for (int i = 0; i < value.length(); i++)
+                {
+                    if (value[i] >= 'A' && value[i] <= 'Z')
+                    {
+                        string nonTerminal = "";
+                        nonTerminal += value[i];
+
+                        if (i == value.length() - 1)
+                        {
+                            for (auto it3 = follow[it->first].begin(); it3 != follow[it->first].end(); it3++)
+                            {
+                                follow[nonTerminal].insert(*it3);
+                            }
+                        }
+                        else
+                        {
+                            if (value[i + 1] >= 'A' && value[i + 1] <= 'Z')
+                            {
+                                string nextNonTerminal = "";
+                                nextNonTerminal += value[i + 1];
+
+                                for (auto it3 = first[nextNonTerminal].begin(); it3 != first[nextNonTerminal].end(); it3++)
+                                {
+                                    follow[nonTerminal].insert(*it3);
+                                }
+                            }
+                            else
+                            {
+                                string terminal = "";
+                                terminal += value[i + 1];
+                                follow[nonTerminal].insert(terminal);
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    }
+}
+
+map<string, set<string>> Grammar::getFollow()
+{
+    return follow;
 }
 
 #endif

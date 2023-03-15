@@ -141,14 +141,14 @@ set<LR0Item> goto_set(set<LR0Item> items, string symbol, Grammar &G)
     return closure_items;
 }
 
-bool gotoStateAlreadyExists(set<set<LR0Item>> states, set<LR0Item> state)
+bool gotoStateAlreadyExists(map<int, set<LR0Item>> states, set<LR0Item> state)
 {
     bool gotoStateExists = false;
     // for every state in the states
-    for (const auto &setOfLR0Items : states)
+    for (int i=0; i<states.size(); i++)
     {
         // flag to check if the given state is already present in the states.
-        if (setOfLR0Items == state)
+        if (states[i] == state)
         {
             gotoStateExists = true;
             break;
