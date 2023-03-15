@@ -18,7 +18,7 @@ public:
 
     bool operator<(const LR0Item &other) const
     {
-        if(right != other.right)
+        if (right != other.right)
             return right < other.right;
         else
             return dot < other.dot;
@@ -145,7 +145,7 @@ bool gotoStateAlreadyExists(map<int, set<LR0Item>> states, set<LR0Item> state)
 {
     bool gotoStateExists = false;
     // for every state in the states
-    for (int i=0; i<states.size(); i++)
+    for (int i = 0; i < states.size(); i++)
     {
         // flag to check if the given state is already present in the states.
         if (states[i] == state)
@@ -156,6 +156,23 @@ bool gotoStateAlreadyExists(map<int, set<LR0Item>> states, set<LR0Item> state)
     }
 
     return gotoStateExists;
+}
+
+int getStateNumber(map<int, set<LR0Item>> states, set<LR0Item> state)
+{
+    int stateNumber = -1;
+    // for every state in the states
+    for (int i = 0; i < states.size(); i++)
+    {
+        // if the given state is already present in the states
+        if (states[i] == state)
+        {
+            stateNumber = i;
+            break;
+        }
+    }
+
+    return stateNumber;
 }
 
 #endif
