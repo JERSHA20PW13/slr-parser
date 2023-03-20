@@ -5,4 +5,4 @@
 #include "LR0Item.hpp"
 #include "Parser.hpp"
 
-#endif // INCLUDES_HPP
+#endif

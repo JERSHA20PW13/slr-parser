@@ -7,43 +7,30 @@
 #include <vector>
 #include <map>
 #include <set>
+
 using namespace std;
 
 class Grammar
 {
 private:
-    /* data */
     string startSymbol;
     map<string, vector<string>> grammar;
-    set<string> terminals;
-    set<string> nonTerminals;
     map<string, set<string>> first;
     map<string, set<string>> follow;
 
 public:
     Grammar();
     Grammar(string filename);
-    string getStartSymbol();
     string getAugmentedStartSymbol();
-    map<string, vector<string>> getGrammarMap();
-    void printMapInJSONFormat();
     map<string, vector<string>> getAugmentedGrammarMap();
     map<string, set<string>> getFirst();
     map<string, set<string>> getFollow();
-    void printGrammar();
     void printAugmentedGrammar();
-    void findTerminals();
-    void findNonTerminals();
-    set<string> getTerminals();
-    set<string> getNonTerminals();
     void constructFirst();
     void constructFollow();
-    // ~Grammar();
 };
 
-Grammar::Grammar()
-{
-}
+Grammar::Grammar() {}
 
 Grammar::Grammar(string filename)
 {
@@ -69,61 +56,16 @@ Grammar::Grammar(string filename)
     }
 }
 
-string Grammar::getStartSymbol()
-{
-    return startSymbol;
-}
-
 string Grammar::getAugmentedStartSymbol()
 {
     return startSymbol + "\'";
 }
 
-map<string, vector<string>> Grammar::getGrammarMap()
-{
-    return grammar;
-}
-
-void Grammar::printMapInJSONFormat()
-{
-    cout << "{" << endl;
-    for (auto it = grammar.begin(); it != grammar.end(); it++)
-    {
-        cout << "\t\"" << it->first << "\": [";
-        for (auto it2 = it->second.begin(); it2 != it->second.end(); it2++)
-        {
-            if (it2 != it->second.end() - 1)
-                cout << "\"" << *it2 << "\", ";
-            else
-                cout << "\"" << *it2 << "\"";
-        }
-        cout << "]," << endl;
-    }
-    cout << "}" << endl;
-}
-
-// Getting augmented grammar
 map<string, vector<string>> Grammar::getAugmentedGrammarMap()
 {
     map<string, vector<string>> augmentedGrammar = grammar;
-    augmentedGrammar[startSymbol + "'"].push_back(startSymbol);
+    augmentedGrammar[getAugmentedStartSymbol()].push_back(startSymbol);
     return augmentedGrammar;
-}
-
-void Grammar::printGrammar()
-{
-    for (auto it = grammar.begin(); it != grammar.end(); it++)
-    {
-        cout << it->first << " -> ";
-        for (auto it2 = it->second.begin(); it2 != it->second.end(); it2++)
-        {
-            if (it2 != it->second.end() - 1)
-                cout << *it2 << " | ";
-            else
-                cout << *it2;
-        }
-        cout << endl;
-    }
 }
 
 void Grammar::printAugmentedGrammar()
@@ -141,45 +83,6 @@ void Grammar::printAugmentedGrammar()
         }
         cout << endl;
     }
-}
-
-// Doesn't work
-void Grammar::findTerminals()
-{
-    for (auto it = grammar.begin(); it != grammar.end(); it++)
-    {
-        for (auto it2 = it->second.begin(); it2 != it->second.end(); it2++)
-        {
-            string value = *it2;
-            for (int i = 0; i < value.length(); i++)
-            {
-                if (value[i] >= 'a' && value[i] <= 'z')
-                {
-                    string terminal = "";
-                    terminal += value[i];
-                    terminals.insert(terminal);
-                }
-            }
-        }
-    }
-}
-
-void Grammar::findNonTerminals()
-{
-    for (auto it = grammar.begin(); it != grammar.end(); it++)
-    {
-        nonTerminals.insert(it->first);
-    }
-}
-
-set<string> Grammar::getTerminals()
-{
-    return terminals;
-}
-
-set<string> Grammar::getNonTerminals()
-{
-    return nonTerminals;
 }
 
 void Grammar::constructFirst()

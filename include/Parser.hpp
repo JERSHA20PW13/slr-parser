@@ -21,9 +21,7 @@ public:
     bool parse();
 };
 
-Parser::Parser()
-{
-}
+Parser::Parser() {}
 
 Parser::Parser(map<pair<int, string>, string> slr_table)
 {
@@ -37,10 +35,8 @@ map<pair<int, string>, string> Parser::getSLRTable()
 
 void Parser::getInput()
 {
-    cout << endl
-         << "Enter the input string: ";
-    // cin >> this->input;
-    this->input = "i * i + i";
+    cout << endl << "Enter the input string: ";
+    getline(cin, this->input);
     this->input += " $";
 }
 
@@ -108,7 +104,6 @@ bool Parser::parse()
         string top = parseStack.top();
         string action = slr_table[make_pair(stoi(top), token)];
 
-        // STACK
         stack<string> temp = parseStack;
         vector<string> stack;
         string stackOutput = "";
@@ -128,7 +123,6 @@ bool Parser::parse()
             inputBuffer += tokens[j] + " ";
         }
 
-        // STACK
         cout << setw(20) << "|"
              << setw(20) << stackOutput
              << setw(20) << "|"
@@ -137,9 +131,17 @@ bool Parser::parse()
              << setw(20) << inputBuffer
              << setw(20) << "|" << endl;
 
-        if (action == "")
-        {
-            cout << "Error: Invalid input string." << endl;
+        if (action == "") {
+            cout << "+"
+                 << "--------------------"
+                 << "-------------------"
+                 << "+"
+                 << "--------------------"
+                 << "-------------------"
+                 << "+"
+                 << "--------------------"
+                 << "-------------------"
+                 << "+" << endl;
             return false;
         }
         else if (action[0] == 'S')
@@ -174,11 +176,11 @@ bool Parser::parse()
                  << "--------------------"
                  << "-------------------"
                  << "+" << endl;
-            cout << "String accepted." << endl;
             return true;
         }
     }
+
     return false;
 }
 
-#endif // PARSER_HPP
+#endif
