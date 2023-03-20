@@ -2,6 +2,7 @@
 #define PARSER_HPP
 #include "Grammar.hpp"
 #include "LR0Item.hpp"
+#include <iomanip>
 #include <stack>
 
 class Parser
@@ -36,7 +37,8 @@ map<pair<int, string>, string> Parser::getSLRTable()
 
 void Parser::getInput()
 {
-    cout << "Enter the input string: ";
+    cout << endl
+         << "Enter the input string: ";
     // cin >> this->input;
     this->input = "i * i + i";
     this->input += " $";
@@ -68,32 +70,72 @@ bool Parser::parse()
 
     vector<string> tokens = tokenizeInput();
 
+    cout << endl
+         << "+"
+         << "--------------------"
+         << "-------------------"
+         << "+"
+         << "--------------------"
+         << "-------------------"
+         << "+"
+         << "--------------------"
+         << "-------------------"
+         << "+" << endl;
+
+    cout
+        << setw(20) << "|"
+        << setw(20) << "Stack"
+        << setw(20) << "|"
+        << setw(20) << "Action"
+        << setw(20) << "|"
+        << setw(20) << "Input Buffer"
+        << setw(20) << "|" << endl;
+
+    cout << "+"
+         << "--------------------"
+         << "-------------------"
+         << "+"
+         << "--------------------"
+         << "-------------------"
+         << "+"
+         << "--------------------"
+         << "-------------------"
+         << "+" << endl;
+
     for (int i = 0; i < tokens.size(); i++)
     {
         string token = tokens[i];
         string top = parseStack.top();
         string action = slr_table[make_pair(stoi(top), token)];
 
-        cout << endl
-             << "-----------------------" << endl;
-        // STACK | ACTION | INPUT
-        cout << "Stack: ";
+        // STACK
         stack<string> temp = parseStack;
+        vector<string> stack;
+        string stackOutput = "";
         while (!temp.empty())
         {
-            cout << temp.top() << " ";
+            stack.push_back(temp.top());
             temp.pop();
         }
-        cout << endl;
-        cout << "Action: " << action << endl;
-        cout << "Input: ";
+        for (int i = stack.size() - 1; i >= 0; i--)
+        {
+            stackOutput += stack[i] + " ";
+        }
+
+        string inputBuffer = "";
         for (int j = i; j < tokens.size(); j++)
         {
-            cout << tokens[j] << " ";
+            inputBuffer += tokens[j] + " ";
         }
-        cout << endl;
 
-        cout << "-----------------------" << endl;
+        // STACK
+        cout << setw(20) << "|"
+             << setw(20) << stackOutput
+             << setw(20) << "|"
+             << setw(20) << action
+             << setw(20) << "|"
+             << setw(20) << inputBuffer
+             << setw(20) << "|" << endl;
 
         if (action == "")
         {
@@ -122,6 +164,16 @@ bool Parser::parse()
         }
         else if (action == "A")
         {
+            cout << "+"
+                 << "--------------------"
+                 << "-------------------"
+                 << "+"
+                 << "--------------------"
+                 << "-------------------"
+                 << "+"
+                 << "--------------------"
+                 << "-------------------"
+                 << "+" << endl;
             cout << "String accepted." << endl;
             return true;
         }
